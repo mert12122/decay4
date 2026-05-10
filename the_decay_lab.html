@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Decay Lab</title>
+<style>
+  /* ============================================
+     The Decay Lab — Polished
+     Dating Earth's Crust — Upside Down Learning
+     ============================================ */
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-page: #253D5B;
+    --bg-panel: #fbf6ec;
+    --bg-panel-soft: #f5ede0;
+    --rock-base: #4a3a2c;
+    --rock-shadow: #2a1f15;
+    --rock-highlight: #6d5a45;
+    --parent-light: #9a6fc8;
+    --parent-mid: #6b3fa0;
+    --parent-dark: #4d2978;
+    --daughter-light: #f0c640;
+    --daughter-mid: #d4a017;
+    --daughter-dark: #a07a0a;
+    --accent: #8b6f47;
+    --accent-dark: #5d4a30;
+    --accent-soft: #b89c75;
+    --text-dark: #2a1f15;
+    --text-medium: #5d4a30;
+    --text-light: #8a7758;
+    --border-subtle: #d4c4a0;
+    --border-strong: #a08862;
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.15);
+    --shadow-mid: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  body {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background: #253D5B;
+    color: var(--text-dark);
+    padding: 8px;
+  }
+
+  .lab-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #253D5B;
+    border: 2px solid #1a2a3f;
+    border-radius: 8px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 320px 160px 1fr;
+    gap: 12px;
+    align-items: start;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .panel {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-soft);
+    align-self: start;
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .rock-panel {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 10px 10px 10px;
+  }
+
+  #rockSvg {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    aspect-ratio: 1;
+    filter: drop-shadow(0 2px 4px rgba(74, 58, 44, 0.15));
+  }
+
+  .atom-counts {
+    margin-top: 10px;
+    width: 100%;
+    font-size: 11px;
+  }
+
+  .count-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    background: var(--bg-panel-soft);
+    border-left: 3px solid var(--parent-mid);
+  }
+
+  .count-row.parent {
+    border-left-color: var(--parent-mid);
+  }
+
+  .count-row.daughter {
+    border-left-color: var(--daughter-mid);
+  }
+
+  .count-label {
+    font-weight: bold;
+    font-size: 11px;
+    color: var(--text-medium);
+  }
+
+  .count-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .controls-panel > div:first-child {
+    margin-bottom: 10px;
+  }
+
+  .time-display {
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .time-display .label {
+    font-size: 10px;
+    color: var(--text-medium);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .time-display .value {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--accent-dark);
+    line-height: 1;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .time-display .sub-value {
+    font-size: 12px;
+    color: var(--text-dark);
+    font-weight: bold;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .advance-btn {
+    background: linear-gradient(180deg, #9b7f57 0%, var(--accent) 100%);
+    color: white;
+    padding: 11px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    box-shadow: 0 1px 2px rgba(74, 58, 44, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--accent-dark);
+  }
+
+  .advance-btn:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+    box-shadow: 0 2px 4px rgba(74, 58, 44, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .advance-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 1px rgba(74, 58, 44, 0.2);
+  }
+
+  .advance-btn:disabled {
+    background: linear-gradient(180deg, #c4b394 0%, #a89876 100%);
+    cursor: not-allowed;
+    border-color: #8a7758;
+    opacity: 0.85;
+  }
+
+  .reset-btn {
+    background: white;
+    color: #253D5B;
+    border: 2px solid #253D5B;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 1px 3px rgba(37, 61, 91, 0.15);
+  }
+
+  .reset-btn:hover {
+    background: #253D5B;
+    color: white;
+    box-shadow: 0 2px 5px rgba(37, 61, 91, 0.3);
+  }
+
+  .reset-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(37, 61, 91, 0.25);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 6px 8px;
+    text-align: center;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+  }
+
+  th {
+    background: var(--accent-dark);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 9px;
+    padding: 7px 6px;
+    border-bottom: 2px solid var(--accent-dark);
+  }
+
+  td {
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--bg-panel-soft);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr.row-new {
+    animation: highlightRow 1.2s ease;
+  }
+
+  @keyframes highlightRow {
+    0% { background: #fff4c2; }
+    100% { background: transparent; }
+  }
+
+  .atom-dot {
+    transition: fill 0.6s ease;
+  }
+
+  .atom-dot.decaying {
+    animation: decayPulse 0.9s ease;
+  }
+
+  @keyframes decayPulse {
+    0% { r: 2.5; opacity: 1; }
+    50% { r: 4.5; opacity: 0.7; filter: drop-shadow(0 0 5px var(--daughter-light)); }
+    100% { r: 2.5; opacity: 1; }
+  }
+
+  @media (max-width: 700px) {
+    .lab-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="lab-container">
+
+  <!-- Rock panel -->
+  <div class="panel rock-panel">
+    <div class="panel-title">The Rock</div>
+    <svg id="rockSvg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rockGradient" cx="40%" cy="35%" r="75%">
+          <stop offset="0%" stop-color="#6d5a45" />
+          <stop offset="60%" stop-color="#4a3a2c" />
+          <stop offset="100%" stop-color="#2a1f15" />
+        </radialGradient>
+        <pattern id="rockTexture" patternUnits="userSpaceOnUse" width="6" height="6">
+          <rect width="6" height="6" fill="transparent"/>
+          <circle cx="2" cy="2" r="0.4" fill="#000" opacity="0.08"/>
+          <circle cx="4" cy="5" r="0.3" fill="#fff" opacity="0.05"/>
+        </pattern>
+        <radialGradient id="parentGrad" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#a37bc8" />
+          <stop offset="60%" stop-color="#6b3fa0" />
+          <stop offset="100%" stop-color="#4d2978" />
+        </radialGradient>
+        <radialGradient id="daughterGrad" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#f5d56a" />
+          <stop offset="60%" stop-color="#d4a017" />
+          <stop offset="100%" stop-color="#a07a0a" />
+        </radialGradient>
+      </defs>
+
+      <polygon
+        points="50,80 90,40 160,30 220,55 270,110 280,180 240,250 170,275 90,260 40,200 30,140"
+        fill="url(#rockGradient)"
+        stroke="#1a1208"
+        stroke-width="2.5"
+        stroke-linejoin="round"
+      />
+      <polygon
+        points="50,80 90,40 160,30 220,55 270,110 280,180 240,250 170,275 90,260 40,200 30,140"
+        fill="url(#rockTexture)"
+        stroke="none"
+      />
+      <polygon
+        points="50,80 90,40 160,30 220,55 200,80 150,75 100,90 70,110"
+        fill="white"
+        opacity="0.05"
+        stroke="none"
+      />
+
+      <g id="atomLayer"></g>
+    </svg>
+    <div class="atom-counts">
+      <div class="count-row parent">
+        <span class="count-label">Parent Isotope:</span>
+        <span class="count-value" id="parentCount">1000</span>
+      </div>
+      <div class="count-row daughter">
+        <span class="count-label">Daughter Isotope:</span>
+        <span class="count-value" id="daughterCount">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls panel -->
+  <div class="panel controls-panel">
+    <div>
+      <div class="panel-title">Time</div>
+      <div class="time-display">
+        <div class="label">Round</div>
+        <div class="value" id="halfLivesValue">0</div>
+        <div class="sub-value"><span id="timeValue">0</span> Ma</div>
+      </div>
+    </div>
+    <div>
+      <button class="advance-btn" id="advanceBtn">
+        ▸ Advance 1 Round<br>
+        <span style="font-size: 10px; font-weight: normal; opacity: 0.95;">(1.25 billion years)</span>
+      </button>
+      <button class="reset-btn" id="resetBtn">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Data table panel -->
+  <div class="panel table-panel">
+    <div class="panel-title">Decay Data</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Round</th>
+          <th>Time (Ma)</th>
+          <th>Parent Atoms</th>
+          <th>% Parent</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>1000</td>
+          <td>100.0%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const HALF_LIFE_MA = 1250;
+  const INITIAL_PARENT = 1000;
+  const MAX_HALF_LIVES = 7;
+
+  let parentAtoms = [];
+  let halfLivesElapsed = 0;
+  let isAnimating = false;
+
+  const atomLayer = document.getElementById('atomLayer');
+  const parentCountEl = document.getElementById('parentCount');
+  const daughterCountEl = document.getElementById('daughterCount');
+  const halfLivesValueEl = document.getElementById('halfLivesValue');
+  const timeValueEl = document.getElementById('timeValue');
+  const advanceBtn = document.getElementById('advanceBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const tableBody = document.getElementById('dataTableBody');
+
+  // Rock polygon points (must match the SVG)
+  const ROCK_POINTS = [
+    [50, 80], [90, 40], [160, 30], [220, 55], [270, 110],
+    [280, 180], [240, 250], [170, 275], [90, 260], [40, 200], [30, 140]
+  ];
+
+  // Point-in-polygon test (ray casting)
+  function pointInPolygon(x, y, polygon) {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][0], yi = polygon[i][1];
+      const xj = polygon[j][0], yj = polygon[j][1];
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function initRock() {
+    parentAtoms = [];
+    atomLayer.innerHTML = '';
+
+    let placed = 0;
+    let attempts = 0;
+    while (placed < INITIAL_PARENT && attempts < 25000) {
+      const x = 30 + Math.random() * 250;
+      const y = 30 + Math.random() * 245;
+
+      // Check if point is inside rock polygon, with small inset from edge
+      if (!pointInPolygon(x, y, ROCK_POINTS)) {
+        attempts++;
+        continue;
+      }
+
+      // Also check that point isn't too close to the edge (small inset)
+      // Use a quick test: shrink check by sampling nearby points
+      const inset = 4;
+      let nearEdge = false;
+      for (const [dx, dy] of [[inset, 0], [-inset, 0], [0, inset], [0, -inset]]) {
+        if (!pointInPolygon(x + dx, y + dy, ROCK_POINTS)) {
+          nearEdge = true;
+          break;
+        }
+      }
+      if (nearEdge) {
+        attempts++;
+        continue;
+      }
+
+      const atom = { id: placed, x: x, y: y, isParent: true };
+      parentAtoms.push(atom);
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', 2.5);
+      circle.setAttribute('fill', 'url(#parentGrad)');
+      circle.setAttribute('class', 'atom-dot');
+      circle.setAttribute('id', 'atom-' + placed);
+      atomLayer.appendChild(circle);
+
+      placed++;
+      attempts++;
+    }
+  }
+
+  function advanceHalfLife() {
+    if (isAnimating || halfLivesElapsed >= MAX_HALF_LIVES) return;
+
+    isAnimating = true;
+    advanceBtn.disabled = true;
+
+    const stillParent = parentAtoms.filter(a => a.isParent);
+    const toDecay = stillParent.filter(() => Math.random() < 0.5);
+
+    toDecay.forEach((atom, i) => {
+      setTimeout(() => {
+        atom.isParent = false;
+        const circle = document.getElementById('atom-' + atom.id);
+        if (circle) {
+          circle.classList.add('decaying');
+          setTimeout(() => {
+            circle.setAttribute('fill', 'url(#daughterGrad)');
+            circle.classList.remove('decaying');
+          }, 450);
+        }
+      }, i * 3);
+    });
+
+    const totalDelay = toDecay.length * 3 + 700;
+    setTimeout(() => {
+      halfLivesElapsed++;
+      updateDisplay();
+      addTableRow();
+
+      isAnimating = false;
+      if (halfLivesElapsed >= MAX_HALF_LIVES) {
+        advanceBtn.disabled = true;
+        advanceBtn.innerHTML = '✓ Decay Complete<br><span style="font-size: 10px; font-weight: normal; opacity: 0.95;">Plot your data in your journal</span>';
+      } else {
+        advanceBtn.disabled = false;
+      }
+    }, totalDelay);
+  }
+
+  function updateDisplay() {
+    const parentNow = parentAtoms.filter(a => a.isParent).length;
+    const daughterNow = INITIAL_PARENT - parentNow;
+    parentCountEl.textContent = parentNow;
+    daughterCountEl.textContent = daughterNow;
+    halfLivesValueEl.textContent = halfLivesElapsed;
+    timeValueEl.textContent = (halfLivesElapsed * HALF_LIFE_MA).toLocaleString();
+  }
+
+  function addTableRow() {
+    const parentNow = parentAtoms.filter(a => a.isParent).length;
+    const pct = (parentNow / INITIAL_PARENT * 100).toFixed(1);
+    const time = halfLivesElapsed * HALF_LIFE_MA;
+
+    const row = document.createElement('tr');
+    row.classList.add('row-new');
+    row.innerHTML = `
+      <td>${halfLivesElapsed}</td>
+      <td>${time.toLocaleString()}</td>
+      <td>${parentNow}</td>
+      <td>${pct}%</td>
+    `;
+    tableBody.appendChild(row);
+
+    setTimeout(() => row.classList.remove('row-new'), 1200);
+  }
+
+  function resetSim() {
+    halfLivesElapsed = 0;
+    isAnimating = false;
+    advanceBtn.disabled = false;
+    advanceBtn.innerHTML = '▸ Advance 1 Round<br><span style="font-size: 10px; font-weight: normal; opacity: 0.95;">(1.25 billion years)</span>';
+    initRock();
+    updateDisplay();
+
+    tableBody.innerHTML = `
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>1000</td>
+        <td>100.0%</td>
+      </tr>
+    `;
+  }
+
+  advanceBtn.addEventListener('click', advanceHalfLife);
+  resetBtn.addEventListener('click', resetSim);
+
+  initRock();
+</script>
+
+</body>
+</html>
